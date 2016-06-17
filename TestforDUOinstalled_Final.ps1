@@ -43,11 +43,11 @@ $vinfo = "NOT INSTALLED"
 $reg = ""
 }
 
-else { "$comp, NOT ACCESSIBLE" }
+else { "$comp,NOT ACCESSIBLE" }
 
 }
 
-else { "$comp, CANT CONNECT" }
+else { "$comp,CANT CONNECT" }
 
  }
 
