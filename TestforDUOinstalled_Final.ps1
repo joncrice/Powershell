@@ -2,6 +2,9 @@
 #Start-Transcript -Path "\\titan\uit$\ei\ess\Projects\Duoinstalled.txt"
 Start-Transcript -Path "c:\users\jrice05\Downloads\Duoinstalled.txt"
 
+#array to store result
+$results = @()
+
 # import list of target computers from TXT/CSV
 #$computers = Get-Content "\\titan\uit$\ei\ess\Projects\computers.txt"
 $computers = Get-Content "c:\users\jrice05\Downloads\computers.txt"
@@ -39,15 +42,27 @@ $key = "SOFTWARE\Duo Security\DuoCredProv"
 $value = "Version"
 $vinfo = $reg.GetStringValue($HKLM, $key, $value) | Select-object -ExpandProperty svalue ## REG_SZ
 "$comp,$vinfo" 
-$vinfo = "NOT INSTALLED"
 $reg = ""
 }
 
-else { "$comp,NOT ACCESSIBLE" }
+else { "$comp,NOT ACCESSIBLE"
+	$vinfo = "NOTE ACCESSIBLE"
+	 }
 
 }
 
-else { "$comp,CANT CONNECT" }
+else { "$comp,CANT CONNECT" 
+	$vinfo = "CANT CONNECT"	
+	}
+
+$output = New-Object psobject
+$output | Add-Member -MemberType noteproperty -Name Computer $comp
+$output | Add-Member -MemberType noteproperty -Name Version $vinfo
+
+$results += $output
+
+#Computer $$MachineName
+$results | Export-Csv c:\users\jrice05\Downloads\DuoVersions.csv
 
  }
 
