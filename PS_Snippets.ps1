@@ -1,73 +1,40 @@
+# These require PowerShell module for Exchange 
+# to add this to local PS session run ...  Add-PSsnapin Microsoft.Exchange.Management.PowerShell.E2010
 # This gets dumpster size for all mailboxes
-#Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics | Sort-Object TotalDeletedItemSize -Descending | Select-Object DisplayName,TotalDeletedItemSize | Out-file
+Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics | Sort-Object TotalDeletedItemSize -Descending | Select-Object DisplayName,TotalDeletedItemSize | Out-file c:\temp\resultxxx.txt
 
 # This gets details of folder sizes for a user
-#Get-MailboxfolderStatistics mhodes02 |ft name, ItemsInFolder, FolderSize -AutoSize
-
-Include for AD
-
-===
-
-Get-ADGroupMember -identity "GROUPNAME" -Recursive | Get-ADUser -Property DisplayName | Select Name,ObjectClass,DisplayName?
-
-=======
-
-Get-ADUser -filter {Enabled -eq $True -and PasswordNeverExpires -eq $False} –Properties "DisplayName", "msDS-UserPasswordExpiryTimeComputed" | Select-Object -Property "Displayname",@{Name="ExpiryDate";Expression={[datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")}}
-
-=======
-
-Get-ADUser -filter {Enabled -eq $True -and PasswordNeverExpires -eq $False} –Properties "DisplayName", "msDS-UserPasswordExpiryTimeComputed" | Select-Object -Property "Displayname",@{Name="ExpiryDate";Expression={[datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")}}
-
-======
-
-$strUserName = "Jrice05"
-$strUser = get-qaduser -SamAccountName $strUserName
-$strUser.memberof
+Get-MailboxfolderStatistics mhodes02 |ft name, ItemsInFolder, FolderSize -AutoSize
 
 =========
 
-Get-AdUser -filter
+Active Directory Snippets
+Requires AD Module https://blogs.msdn.microsoft.com/rkramesh/2012/01/17/how-to-add-active-directory-module-in-powershell-in-windows-7/
+
+# Get information on group membership
+Get-ADGroupMember -identity "GROUPNAME" -Recursive | Get-ADUser -Property DisplayName | Select Name,ObjectClass,DisplayName
+
+# Simpler one that just gets the UTLN
+Get-ADGroupMember AS_D_Conf_mail | Select-object -ExpandProperty name
+
+# Gets the domain password expiration date for domain users
+Get-ADUser -filter {Enabled -eq $True -and PasswordNeverExpires -eq $False} –Properties "DisplayName", "msDS-UserPasswordExpiryTimeComputed" | Select-Object -Property "Displayname",@{Name="ExpiryDate";Expression={[datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")}}
+
+#Get enabled domain users who have password set to never expire
+Get-ADUser -filter {Enabled -eq $True -and PasswordNeverExpires -eq $True} | Select-Object -Property "Name", "GivenName", "Surname"
+
+# Get password expiration for AD group
+Get-ADUser -filter 'memberOf -RecursiveMatch "CN=TTS-ESS,OU=Servers,OU=Common Resources,DC=tufts,DC=ad,DC=tufts,DC=edu"' –Properties "DisplayName", "msDS-UserPasswordExpiryTimeComputed" | Select-Object -Property "Displayname",@{Name="ExpiryDate";Expression={[datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")}}
 
 =========
 
-Get-ADUser -SearchBase "OU=Accounts,OU=RootOU,DC=Domain,DC=com" -Properties memberof | Where {$_.memberof -match "CTX" -and $users -contains $_.samaccountname } | ForEach
+# This require the Office365 Module https://technet.microsoft.com/en-us/library/dn975125.aspx
+# Good link for storing local credentials for Office 365 to automate connection in scripts: https://blogs.technet.microsoft.com/robcost/2008/05/01/powershell-tip-storing-and-using-password-credentials/
 
-========
-
-CN=TTS-ESS,OU=Servers,OU=Common Resources,DC=tufts,DC=ad,DC=tufts,DC=edu
-
-========
-
-Get-ADUser -filter {Enabled -eq $True -and PasswordNeverExpires -eq $False} -SearchBase "CN=TTS-ESS,OU=Servers,OU=Common Resources,DC=tufts,DC=ad,DC=tufts,DC=edu" -Properties memberof | Where {$_.memberof -match "CTX" -and $users -contains $_.samaccountname } | ForEach
-
-======
-
-Get-ADUser -filter {Enabled -eq $True -and PasswordNeverExpires -eq $False -and Get-ADGroupMember } –Properties "DisplayName", "msDS-UserPasswordExpiryTimeComputed" | Select-Object -Property "Displayname",@{Name="ExpiryDate";Expression={[datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")}}
-
-========
-
-ForEach-Object {
- $GName = $_.Samaccountname
- $group = Get-ADGroup $GName\
- $group.Name
-
-Get-ADGroupMember AS_D_Conf_mail | Select-object -ExpandProperty name | Get-ADUser | Select-Object Surname,GivenName
-
-(Get-VIEvent -Start "2/10/2015 3:08 AM" -Finish "2/10/2015 3:09 AM" -Entity "ddc1-vb01esx009.dm.mckesson.com" | ? {$_.Key -eq '135790287'}).Info
-
-(Get-VIEvent -MaxSamples ([int]::MaxValue) -Start (Get-Date).AddMonths(-1) | Where { $_.GetType().Name -eq "TaskEvent" } | ? $_.Key).Info
-
-Get-VIEvent -Entity WPAWEBSTG01 -MaxSamples ([int]::MaxValue) -Start (Get-Date).AddMonths(-1) | Where { $_.GetType().Name -eq "TaskEvent" } | Select Key
-
-
-
-(Get-VIEvent -Entity WPAWEBSTG01 -MaxSamples ([int]::MaxValue) -Start (Get-Date).AddMonths(-1) | Where { $_.GetType().Name -eq "TaskEvent" } | ? {$_.Key -eq "2433554"}).info
-
-Get-VIEvent -Entity WPAWEBSTG01 -MaxSamples ([int]::MaxValue) -Start (Get-Date).AddMonths(-1) | Where { $_.GetType().Name -eq "TaskEvent" } | Select Key | ft -hide
-
-
+# Script for getting the O365 license status
 Get-MsolUser -UserPrincipalName jrice05@tufts.edu | Select-Object -ExpandProperty Licenses | Select-Object -ExpandProperty ServiceStatus
 
+========
 
 $IP = $ENV:COMPUTERNAME
 $RunEXE = 'c:\windows\notepad.exe'
@@ -76,29 +43,17 @@ $proc = ([WMICLASS]"\\$IP\ROOT\CIMV2:win32_process").Create($RunEXE)
 While(Get-WmiObject Win32_Process -computername $ip -filter "ProcessID='$($proc.ProcessID)'"){start-sleep -seconds 2}
 write-host 'Process stopped'
 
-Import-Module ActiveDirectory
-cd AD:
-Get-ADUser -filter 'memberOf -RecursiveMatch "CN=TTS-ESS,OU=Servers,OU=Common Resources,DC=tufts,DC=ad,DC=tufts,DC=edu"' –Properties "DisplayName", "msDS-UserPasswordExpiryTimeComputed" | Select-Object -Property "Displayname",@{Name="ExpiryDate";Expression={[datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")}}
-Import-Module ActiveDirectory
-cd AD:
-
+========
 
 get-adgroupmember "TTS-ESS" -recursive | % {
     $group=$_
-    get-aduser $_ -Properties Employeeid | select @{n="Group";e={$group}},Name,SurName,GivenName,Employeeid
+    get-aduser $_ -Properties Employeeid | select @{n="Group";e={$group}},Name,SurName,GivenName
 }
 
-Import-Module ActiveDirectory
-cd AD:
+===========
 
-Get-ADGroupMember -identity TTS-ESS | Get-ADUser -Property DisplayName | Select Name,ObjectClass,DisplayName?,msDS-UserPasswordExpiryTimeComputed
-
-
-Connect-MsolService -Credential $Office365credentials
-Get-MsolUser -UserPrincipalName nwakul01@tufts.edu | Select-Object -ExpandProperty Licenses
-
-Get-MsolUser -UserPrincipalName jrice05@tufts.edu | Select-Object -ExpandProperty Licenses | Select-Object -ExpandProperty ServiceStatus
-
+# This requires loading a module https://gallery.technet.microsoft.com/scriptcenter/Local-Account-Management-a777191b
+# This script goes through list of servers to get members of the locadmin accounts
 IMPORT-Module LocalAccount
 $servers = "TABVMPSHR2", "TFTMVMPSF6", "WSISPRODFS01", "TFTMVMADMPROD", "TFTMVMADMPROD"
 ForEach ($item in $servers ) {
@@ -108,13 +63,9 @@ Write-Output "===="
 Get-LocalGroupMember -Name "Administrators" -Computername $item
 }
 
-# Script to retrieve users whose passwords are set to never expire.
+========
 
-Import-Module ActiveDirectory
-cd AD:
-
-Get-ADUser -filter {memberOf "CN=Domain Users,CN=Users,DC=tufts,DC=ad,DC=tufts,DC=edu",  Enabled -eq $True -and PasswordNeverExpires -eq $False} –Properties "DisplayName", "msDS-UserPasswordExpiryTimeComputed" | Select-Object -Property "Displayname",@{Name="ExpiryDate";Expression={[datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")}}
-
+#Using Windows Management Instrumentation calls
 #This gets the install GUID for EMC Networker
 $Uninstall = Get-WmiObject -Class Win32_Product -ComputerName Tabvmesstest01 | Where-Object -FilterScript {$_.Name -eq "NetWorker"} | Format-List -Property IdentifyingNumber
 Echo $Uninstall
