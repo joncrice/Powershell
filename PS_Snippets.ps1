@@ -4,10 +4,10 @@
 Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics | Sort-Object TotalDeletedItemSize -Descending | Select-Object DisplayName,TotalDeletedItemSize | Out-file c:\temp\resultxxx.txt
 
 # This gets details of folder sizes for a user
-Get-MailboxfolderStatistics mhodes02 |ft name, ItemsInFolder, FolderSize -AutoSize
+Get-MailboxfolderStatistics USER_UTLN |ft name, ItemsInFolder, FolderSize -AutoSize
 
 # This force clears the exchange dumpster folders
-Search-Mailbox -Identity UTLN -SearchDumpsterOnly -DeleteContent 
+Search-Mailbox -Identity USER_UTLN -SearchDumpsterOnly -DeleteContent 
 
 =========
 
@@ -27,7 +27,7 @@ Get-ADUser -filter {Enabled -eq $True -and PasswordNeverExpires -eq $False} –Pro
 Get-ADUser -filter {Enabled -eq $True -and PasswordNeverExpires -eq $True} | Select-Object -Property "Name", "GivenName", "Surname"
 
 # Get password expiration for AD group
-Get-ADUser -filter 'memberOf -RecursiveMatch "CN=TTS-ESS,OU=Servers,OU=Common Resources,DC=tufts,DC=ad,DC=tufts,DC=edu"' –Properties "DisplayName", "msDS-UserPasswordExpiryTimeComputed" | Select-Object -Property "Displayname",@{Name="ExpiryDate";Expression={[datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")}}
+Get-ADUser -filter 'memberOf -RecursiveMatch "CN=GROUPNAME,OU=Servers,OU=Common Resources,DC=domain,DC=ad,DC=domain,DC=edu"' –Properties "DisplayName", "msDS-UserPasswordExpiryTimeComputed" | Select-Object -Property "Displayname",@{Name="ExpiryDate";Expression={[datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")}}
 
 =========
 
@@ -35,7 +35,7 @@ Get-ADUser -filter 'memberOf -RecursiveMatch "CN=TTS-ESS,OU=Servers,OU=Common Re
 # Good link for storing local credentials for Office 365 to automate connection in scripts: https://blogs.technet.microsoft.com/robcost/2008/05/01/powershell-tip-storing-and-using-password-credentials/
 
 # Script for getting the O365 license status
-Get-MsolUser -UserPrincipalName jrice05@tufts.edu | Select-Object -ExpandProperty Licenses | Select-Object -ExpandProperty ServiceStatus
+Get-MsolUser -UserPrincipalName USER_UTLN@domain.com | Select-Object -ExpandProperty Licenses | Select-Object -ExpandProperty ServiceStatus
 
 ========
 
@@ -58,7 +58,7 @@ get-adgroupmember "TTS-ESS" -recursive | % {
 # This requires loading a module https://gallery.technet.microsoft.com/scriptcenter/Local-Account-Management-a777191b
 # This script goes through list of servers to get members of the locadmin accounts
 IMPORT-Module LocalAccount
-$servers = "TABVMPSHR2", "TFTMVMPSF6", "WSISPRODFS01", "TFTMVMADMPROD", "TFTMVMADMPROD"
+$servers = "SERVER1", "SERVER2", "SERVER3", "SERVER4", "SERVER5"
 ForEach ($item in $servers ) {
 Write-Output "===="
 Write-Output $item
@@ -70,7 +70,7 @@ Get-LocalGroupMember -Name "Administrators" -Computername $item
 
 #Using Windows Management Instrumentation calls
 #This gets the install GUID for EMC Networker
-$Uninstall = Get-WmiObject -Class Win32_Product -ComputerName Tabvmesstest01 | Where-Object -FilterScript {$_.Name -eq "NetWorker"} | Format-List -Property IdentifyingNumber
+$Uninstall = Get-WmiObject -Class Win32_Product -ComputerName SERVERNAME | Where-Object -FilterScript {$_.Name -eq "NetWorker"} | Format-List -Property IdentifyingNumber
 Echo $Uninstall
 $StrUninstall = $Uninstall | Out-String
 $pos = $StrUninstall.IndexOf(":")
