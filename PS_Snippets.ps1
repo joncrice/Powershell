@@ -9,6 +9,12 @@ Get-MailboxfolderStatistics USER_UTLN |ft name, ItemsInFolder, FolderSize -AutoS
 # This force clears the exchange dumpster folders
 Search-Mailbox -Identity USER_UTLN -SearchDumpsterOnly -DeleteContent 
 
+# This gets dumpster size for all mailboxes
+Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics | Sort-Object TotalDeletedItemSize -Descending | Select-Object DisplayName,TotalDeletedItemSize | Out-file
+
+# This gets details of folder sizes for a user
+Get-MailboxfolderStatistics mhodes02 |ft name, ItemsInFolder, FolderSize -AutoSize
+
 =========
 
 Active Directory Snippets
