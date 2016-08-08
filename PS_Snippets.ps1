@@ -3,6 +3,9 @@
 # This gets dumpster size for all mailboxes
 Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics | Sort-Object TotalDeletedItemSize -Descending | Select-Object DisplayName,TotalDeletedItemSize | Out-file c:\temp\resultxxx.txt
 
+# Just as above but only for those with litigation on hold.
+Get-Mailbox -ResultSize Unlimited -Filter {LitigationHoldEnabled -eq $True} | Get-MailboxStatistics | Sort-Object TotalDeletedItemSize -Descending | Select-Object DisplayName,TotalDeletedItemSize | Out-file c:\temp\resultxxx.txt
+
 # This gets details of folder sizes for a user
 Get-MailboxfolderStatistics USER_UTLN |ft name, ItemsInFolder, FolderSize -AutoSize
 
@@ -13,7 +16,10 @@ Search-Mailbox -Identity USER_UTLN -SearchDumpsterOnly -DeleteContent
 Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics | Sort-Object TotalDeletedItemSize -Descending | Select-Object DisplayName,TotalDeletedItemSize | Out-file
 
 # This gets details of folder sizes for a user
-Get-MailboxfolderStatistics mhodes02 |ft name, ItemsInFolder, FolderSize -AutoSize
+Get-MailboxfolderStatistics USER_UTLN |ft name, ItemsInFolder, FolderSize -AutoSize
+
+# Get Litigation Hold Status of mailbox
+Get-Mailbox USER_UTLN | fl LitigationHoldEnabled
 
 =========
 
