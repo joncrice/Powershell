@@ -1,10 +1,10 @@
-﻿Start-Transcript -Path "c:\users\jrice05\Downloads\Samaccountname.txt"
+Start-Transcript -Path "c:\users\XXXXX\Downloads\Samaccountname.txt"
 
 #array to store result
 $results = @()
 
 # import list of emails TXT/CSV
-$useremails = Get-Content "c:\users\jrice05\Documents\box_users_06212016.txt"
+$useremails = Get-Content "c:\users\XXXXX\Documents\box_users_06212016.txt"
 
 Write-Host "------------------------------------------------"
 Write-Host "Starting review of Box.com email accounts"
@@ -29,7 +29,7 @@ $output | Add-Member -MemberType noteproperty -Name SamAccount $samacct
 $results += $output
 
 #Computer $$MachineName
-$results | Export-Csv c:\users\jrice05\Downloads\box_users.csv
+$results | Export-Csv c:\users\XXXXX\Downloads\box_users.csv
 
 
 
