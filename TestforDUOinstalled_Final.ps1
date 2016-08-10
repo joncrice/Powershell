@@ -1,13 +1,13 @@
-﻿# create log of run
+# create log of run
 #Start-Transcript -Path "\\titan\uit$\ei\ess\Projects\Duoinstalled.txt"
-Start-Transcript -Path "c:\users\jrice05\Downloads\Duoinstalled.txt"
+Start-Transcript -Path "c:\users\XXXXX\Downloads\Duoinstalled.txt"
 
 #array to store result
 $results = @()
 
 # import list of target computers from TXT/CSV
 #$computers = Get-Content "\\titan\uit$\ei\ess\Projects\computers.txt"
-$computers = Get-Content "c:\users\jrice05\Downloads\computers.txt"
+$computers = Get-Content "c:\users\XXXXX\Downloads\computers.txt"
 
 Write-Host "------------------------------------------------"
 Write-Host "Starting review of DUO installs on Windows Servers"
@@ -62,7 +62,7 @@ $output | Add-Member -MemberType noteproperty -Name Version $vinfo
 $results += $output
 
 #Computer $$MachineName
-$results | Export-Csv c:\users\jrice05\Downloads\DuoVersions.csv
+$results | Export-Csv c:\users\XXXXX\Downloads\DuoVersions.csv
 
  }
 
