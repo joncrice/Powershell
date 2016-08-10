@@ -41,6 +41,12 @@ Get-ADUser -filter {Enabled -eq $True -and PasswordNeverExpires -eq $True} | Sel
 # Get password expiration for AD group
 Get-ADUser -filter 'memberOf -RecursiveMatch "CN=GROUPNAME,OU=Servers,OU=Common Resources,DC=domain,DC=ad,DC=domain,DC=edu"' –Properties "DisplayName", "msDS-UserPasswordExpiryTimeComputed" | Select-Object -Property "Displayname",@{Name="ExpiryDate";Expression={[datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")}}
 
+# List of all AD groups
+Get-ADObject -SearchBase (Get-ADDomain).DistinguishedName -SearchScope OneLevel -LDAPFilter '(objectClass=group)' | Select-Object -ExpandProperty DistinguishedName
+
+# Returns the permission information for a given group (guids only)
+get-acl -Path "AD:\AD_OBJECT_XXXXX" | Select-Object -ExpandProperty Access 
+
 =========
 
 # This require the Office365 Module https://technet.microsoft.com/en-us/library/dn975125.aspx
