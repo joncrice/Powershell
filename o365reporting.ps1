@@ -21,5 +21,4 @@ Compare-Object (Get-Content c:\temp\today.txt) (Get-Content C:\temp\yesterday.tx
 
 #Send email message of diffs
 $body = Get-Content -Path $filename -Raw
-Send-MailMessage -To "Jonathan Rice <jrice05@tufts.edu>" -From "Jonathan 
-Rice <jrice05@tufts.edu>" -Subject "Office 365 Exchange licensing change report" -Body $body -SmtpServer smtp.tufts.edu
+Send-MailMessage -To "Firstname Lastname <firstname.lastname@domain.com>" -From "Firstname Lastname <firstname.lastname@domain.com>" -Subject "Office 365 Exchange licensing change report" -Body $body -SmtpServer smtp.domain.com
