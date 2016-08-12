@@ -47,6 +47,16 @@ Get-ADObject -SearchBase (Get-ADDomain).DistinguishedName -SearchScope OneLevel 
 # Returns the permission information for a given group (guids only)
 get-acl -Path "AD:\AD_OBJECT_XXXXX" | Select-Object -ExpandProperty Access 
 
+# Creates a new AD rule (ACE) that can be applied to the AD object
+$path = "AD:\CN=Tester1,OU=Ou1,OU=OU2,OU=OU3,DC=Contoso,DC=com"
+$acl = Get-Acl -Path $path
+$ace = New-Object Security.AccessControl.ActiveDirectoryAccessRule('DOMAIN\Computername','FullControl')
+$acl.AddAccessRule($ace)
+Set-Acl -Path $path -AclObject $acl
+
+# Get Access list for given AD object
+(Get-ACL 'CN=Tester1,OU=Ou1,OU=OU2,OU=OU3,DC=Contoso,DC=com').Access | ft IdentityReference,AccessControlType -A
+
 =========
 
 # This require the Office365 Module https://technet.microsoft.com/en-us/library/dn975125.aspx
