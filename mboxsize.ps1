@@ -1,4 +1,4 @@
-$userlist = get-mailboxdatabase -server tabvmexdag1mb06.tufts.ad.tufts.edu | get-mailbox -ResultSize "Unlimited"
+$userlist = get-mailboxdatabase -server MAILBOXSERVER | get-mailbox -ResultSize "Unlimited"
 
 foreach ($user in $userlist)
 
