@@ -1,3 +1,5 @@
+# Recurse through AD and retrieve all groups, then get access the permission level to each group for one specific AD group.
+
 import-module activedirectory  
 CD AD:
 
