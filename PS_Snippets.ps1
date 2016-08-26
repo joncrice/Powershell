@@ -57,6 +57,9 @@ Set-Acl -Path $path -AclObject $acl
 # Get Access list for given AD object
 (Get-ACL 'CN=Tester1,OU=Ou1,OU=OU2,OU=OU3,DC=Contoso,DC=com').Access | ft IdentityReference,AccessControlType -A
 
+#Get domain password expiration date, cn and last password change date
+Get-ADUser -filter {Enabled -eq $True -and PasswordNeverExpires -eq $False} –Properties “cn”, “msDS-UserPasswordExpiryTimeComputed”, "pwdLastSet" |  Select-Object -Property “cn”,@{Name=“expdqate”;Expression={[datetime]::FromFileTime($_.“msDS-UserPasswordExpiryTimeComputed”).ToString("MM/dd/yyyy")}}, @{Name="pwdsetdate";Expression={[datetime]::FromFileTime($_.“pwdLastSet”).ToString("MM/dd/yyyy")}} | Export-Csv c:\temp\passwordEXP_08262016.csv
+
 =========
 
 # This require the Office365 Module https://technet.microsoft.com/en-us/library/dn975125.aspx
