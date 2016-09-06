@@ -79,7 +79,7 @@ write-host 'Process stopped'
 
 ========
 
-get-adgroupmember "TTS-ESS" -recursive | % {
+get-adgroupmember "GROUPNAME" -recursive | % {
     $group=$_
     get-aduser $_ -Properties Employeeid | select @{n="Group";e={$group}},Name,SurName,GivenName
 }
