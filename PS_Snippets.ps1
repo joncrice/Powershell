@@ -3,11 +3,23 @@
 # This gets dumpster size for all mailboxes
 Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics | Sort-Object TotalDeletedItemSize -Descending | Select-Object DisplayName,TotalDeletedItemSize | Out-file c:\temp\resultxxx.txt
 
+# Just as above but only for those with litigation on hold.
+Get-Mailbox -ResultSize Unlimited -Filter {LitigationHoldEnabled -eq $True} | Get-MailboxStatistics | Sort-Object TotalDeletedItemSize -Descending | Select-Object DisplayName,TotalDeletedItemSize | Out-file c:\temp\resultxxx.txt
+
 # This gets details of folder sizes for a user
-Get-MailboxfolderStatistics mhodes02 |ft name, ItemsInFolder, FolderSize -AutoSize
+Get-MailboxfolderStatistics USER_UTLN |ft name, ItemsInFolder, FolderSize -AutoSize
 
 # This force clears the exchange dumpster folders
-Search-Mailbox -Identity UTLN -SearchDumpsterOnly -DeleteContent 
+Search-Mailbox -Identity USER_UTLN -SearchDumpsterOnly -DeleteContent 
+
+# This gets dumpster size for all mailboxes
+Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics | Sort-Object TotalDeletedItemSize -Descending | Select-Object DisplayName,TotalDeletedItemSize | Out-file
+
+# This gets details of folder sizes for a user
+Get-MailboxfolderStatistics USER_UTLN |ft name, ItemsInFolder, FolderSize -AutoSize
+
+# Get Litigation Hold Status of mailbox
+Get-Mailbox USER_UTLN | fl LitigationHoldEnabled
 
 =========
 
@@ -27,7 +39,26 @@ Get-ADUser -filter {Enabled -eq $True -and PasswordNeverExpires -eq $False} –Pro
 Get-ADUser -filter {Enabled -eq $True -and PasswordNeverExpires -eq $True} | Select-Object -Property "Name", "GivenName", "Surname"
 
 # Get password expiration for AD group
-Get-ADUser -filter 'memberOf -RecursiveMatch "CN=TTS-ESS,OU=Servers,OU=Common Resources,DC=tufts,DC=ad,DC=tufts,DC=edu"' –Properties "DisplayName", "msDS-UserPasswordExpiryTimeComputed" | Select-Object -Property "Displayname",@{Name="ExpiryDate";Expression={[datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")}}
+Get-ADUser -filter 'memberOf -RecursiveMatch "CN=GROUPNAME,OU=Servers,OU=Common Resources,DC=domain,DC=ad,DC=domain,DC=edu"' –Properties "DisplayName", "msDS-UserPasswordExpiryTimeComputed" | Select-Object -Property "Displayname",@{Name="ExpiryDate";Expression={[datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")}}
+
+# List of all AD groups
+Get-ADObject -SearchBase (Get-ADDomain).DistinguishedName -SearchScope OneLevel -LDAPFilter '(objectClass=group)' | Select-Object -ExpandProperty DistinguishedName
+
+# Returns the permission information for a given group (guids only)
+get-acl -Path "AD:\AD_OBJECT_XXXXX" | Select-Object -ExpandProperty Access 
+
+# Creates a new AD rule (ACE) that can be applied to the AD object
+$path = "AD:\CN=Tester1,OU=Ou1,OU=OU2,OU=OU3,DC=Contoso,DC=com"
+$acl = Get-Acl -Path $path
+$ace = New-Object Security.AccessControl.ActiveDirectoryAccessRule('DOMAIN\Computername','FullControl')
+$acl.AddAccessRule($ace)
+Set-Acl -Path $path -AclObject $acl
+
+# Get Access list for given AD object
+(Get-ACL 'CN=Tester1,OU=Ou1,OU=OU2,OU=OU3,DC=Contoso,DC=com').Access | ft IdentityReference,AccessControlType -A
+
+#Get domain password expiration date, cn and last password change date
+Get-ADUser -filter {Enabled -eq $True -and PasswordNeverExpires -eq $False} –Properties “cn”, “msDS-UserPasswordExpiryTimeComputed”, "pwdLastSet" |  Select-Object -Property “cn”,@{Name=“expdqate”;Expression={[datetime]::FromFileTime($_.“msDS-UserPasswordExpiryTimeComputed”).ToString("MM/dd/yyyy")}}, @{Name="pwdsetdate";Expression={[datetime]::FromFileTime($_.“pwdLastSet”).ToString("MM/dd/yyyy")}} | Export-Csv c:\temp\passwordEXP_08262016.csv
 
 =========
 
@@ -35,7 +66,7 @@ Get-ADUser -filter 'memberOf -RecursiveMatch "CN=TTS-ESS,OU=Servers,OU=Common Re
 # Good link for storing local credentials for Office 365 to automate connection in scripts: https://blogs.technet.microsoft.com/robcost/2008/05/01/powershell-tip-storing-and-using-password-credentials/
 
 # Script for getting the O365 license status
-Get-MsolUser -UserPrincipalName jrice05@tufts.edu | Select-Object -ExpandProperty Licenses | Select-Object -ExpandProperty ServiceStatus
+Get-MsolUser -UserPrincipalName USER_UTLN@domain.com | Select-Object -ExpandProperty Licenses | Select-Object -ExpandProperty ServiceStatus
 
 ========
 
@@ -48,7 +79,7 @@ write-host 'Process stopped'
 
 ========
 
-get-adgroupmember "TTS-ESS" -recursive | % {
+get-adgroupmember "GROUPNAME" -recursive | % {
     $group=$_
     get-aduser $_ -Properties Employeeid | select @{n="Group";e={$group}},Name,SurName,GivenName
 }
@@ -58,7 +89,7 @@ get-adgroupmember "TTS-ESS" -recursive | % {
 # This requires loading a module https://gallery.technet.microsoft.com/scriptcenter/Local-Account-Management-a777191b
 # This script goes through list of servers to get members of the locadmin accounts
 IMPORT-Module LocalAccount
-$servers = "TABVMPSHR2", "TFTMVMPSF6", "WSISPRODFS01", "TFTMVMADMPROD", "TFTMVMADMPROD"
+$servers = "SERVER1", "SERVER2", "SERVER3", "SERVER4", "SERVER5"
 ForEach ($item in $servers ) {
 Write-Output "===="
 Write-Output $item
@@ -70,7 +101,7 @@ Get-LocalGroupMember -Name "Administrators" -Computername $item
 
 #Using Windows Management Instrumentation calls
 #This gets the install GUID for EMC Networker
-$Uninstall = Get-WmiObject -Class Win32_Product -ComputerName Tabvmesstest01 | Where-Object -FilterScript {$_.Name -eq "NetWorker"} | Format-List -Property IdentifyingNumber
+$Uninstall = Get-WmiObject -Class Win32_Product -ComputerName SERVERNAME | Where-Object -FilterScript {$_.Name -eq "NetWorker"} | Format-List -Property IdentifyingNumber
 Echo $Uninstall
 $StrUninstall = $Uninstall | Out-String
 $pos = $StrUninstall.IndexOf(":")
