@@ -2,19 +2,19 @@
 CD AD:
 
 Start-Transcript c:\temp\audit.txt
-Write-Output "====== Domain Admins ======"
+Write-Host "====== Domain Admins ======"
 Get-ADGroupMember -identity "Domain Admins"| Select-object -ExpandProperty name
 
-Write-Output "====== Exchange Organization Administrators ======"
+Write-Host "====== Exchange Organization Administrators ======"
 Get-ADGroupMember -identity "Exchange Organization Administrators"| Select-object -ExpandProperty name
 
-Write-Output "====== CTL_TCCS_MIS_DBA ======"
+Write-Host "====== CTL_TCCS_MIS_DBA ======"
 Get-ADGroupMember -identity "CTL_TCCS_MIS_DBA"| Select-object -ExpandProperty name
 
-Write-Output "====== CTL_TCCS_MIS_DBA ======"
+Write-Host "====== CTL_TCCS_MIS_DBA ======"
 Get-ADGroupMember -identity "CTL_TCCS_MIS_DBA"| Select-object -ExpandProperty name
 
-Write-Output "====== TTS-ESS ======"
+Write-Host "====== TTS-ESS ======"
 Get-ADGroupMember -identity "TTS-ESS"| Select-object -ExpandProperty name
 
 
@@ -23,7 +23,7 @@ $Computers = @("TABVMPSHR2","TFTMVMPSF6", "WSISPRODFS01","TFTMVMAWAPROD","TFTMVM
 
 ForEach ($computername in $computers) {
     $ADMINS = ""
-    Write-Output "====== Local Admins for $computername ======"
+    Write-Host "====== Local Admins for $computername ======"
     $computername = $computername.toupper()
     $ADMINS = get-wmiobject -computername $computername -query "select * from win32_groupuser where GroupComponent=""Win32_Group.Domain='$computername',Name='administrators'""" | % {$_.partcomponent}
     #write-host $ADMINS
@@ -39,5 +39,7 @@ ForEach ($computername in $computers) {
     #Write-Host $objreport
     }#end for
     }
+
+
 
 Stop-Transcript
