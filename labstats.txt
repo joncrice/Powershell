@@ -1,0 +1,34 @@
+weuclabstatsprd01.it.tufts.edu
+
+weuclabstatsprd01.tufts.ad.tufts.edu
+
+10.246.130.72
+
+weuclabstatsprd01-back.uit.tufts.edu
+
+10.242.6.32	
+
+Flabstats.it.tufts.edu
+
+https://fsrequest.tufts.edu/WebMaint/
+
+	       
+
+HaCoStFu6&8(
+
+tftmvmmaxtst.tufts.ad.tufts.edu
+
+tufts.ad.tufts.edu/ASE/Students/Account Dropbox/jfulkl01
+
+Jackson, This is a small configuration issue that we will correct. When the update is completed you should be ab;e to log in. Best Regards, Jon
+
+userPrincipalName needs to be updated in AD from jfulkl01@tufts.ad.tufts.edu to jfulkl01@tufts.edu. This will be done shortly. 
+
+
+Created F5 entities
+- Pool: lb-weuclabstatsprd01.it.tufts.edu-80
+- Node: 10.246.130.72 -  weuclabstatsprd01.tufts.ad.tufts.edu (port 80)
+- Pool: lb-weuclabstatsprd01.it.tufts.edu-443
+- Node: 10.246.130.72 -  weuclabstatsprd01.tufts.ad.tufts.edu (port 443)
+
+

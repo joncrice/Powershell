@@ -21,6 +21,21 @@ Get-MailboxfolderStatistics USER_UTLN |ft name, ItemsInFolder, FolderSize -AutoS
 # Get Litigation Hold Status of mailbox
 Get-Mailbox USER_UTLN | fl LitigationHoldEnabled
 
+# Move mailbox from on-prem to cloud.
+Set-ExecutionPolicy Unrestricted -Force
+Set-ExecutionPolicy RemoteSigned
+$O365CREDS = Get-Credential
+$ONPREMCREDS = Get-Credential
+$SESSION = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $O365CREDS -Authentication Basic -AllowRedirection
+Import-PSSession $SESSION
+Connect-MsolService -Credential $O365CREDS
+New-MoveRequest -Identity "INSERT_USER_ALIAS_HERE" -Remote -RemoteHostName hybridserver.domainname.com -TargetDeliveryDomain domainname.mail.onmicrosoft.com -RemoteCredential $ONPREMCREDS -BadItemLimit 1000
+Get-MoveRequest | Get-MoveRequestStatistics
+Remove-MoveRequest -Identity "INSERT_USER_ALIAS_HERE"	
+
+New-MoveRequest -Identity "INSERT_USER_ALIAS_HERE" -Remote -RemoteHostName exchange.tufts.edu -TargetDeliveryDomain "tuftscloud.mail.onmicrosoft.com" -RemoteCredential $Onpremcredential
+
+
 =========
 
 Active Directory Snippets

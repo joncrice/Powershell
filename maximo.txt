@@ -1,0 +1,28 @@
+Updates made to WebShere to support move of the Maximo database server.
+
+Location for deployed Enterprise Archives:
+D:\Program Files\IBM\WebSphere\AppServer\profiles\ctgAppSrv01\installedApps\
+Three EARs deployed: 
+	EZDash.ear
+	ezmaxmobile.ear
+	MAXIMO.ear
+	
+In the D:\Program Files\IBM\WebSphere\AppServer\profiles\ctgAppSrv01\installedApps\ctgCell01\MAXIMO.ear there is a properties.jar file
+
+The following steps were performed to updated the configuration to point to FQDN of the database server.
+1) Backed up the entire MAXIMO.ear to (d:\Backup)
+2) Copied the properties.jar file to a new location (d:\temp)
+3) Extracted files in the properties.jar file withj 7zip.
+4) Edited the maximo.properties file to use the host name of the database server rather than the IP address.
+	FROM: mxe.db.url=jdbc:inetdae7a:10.250.132.108:1433?database=MAXTEST&language=us_english&nowarnings=true&mars=false
+	TO:   mxe.db.url=jdbc:inetdae7a:TFTMVMMAXDB.tufts.ad.tufts.edu:1433?database=MAXTEST&language=us_english&nowarnings=true&mars=false
+5) Opened the properties.jar file with 7Zip and updated the maximo.properies file with the updated file.
+6) Copied the the updated properties.jar file in the deployed 
+	
+Notes: 
+If this gets re-deployed we need to be aware that there may be left-over configuration items still pointing to the the old address of the 
+This required and update of the firewall rules (INC0448290) to allow the app server to connect to the IP of the new database server.
+This IBM support document helped point in the correct direction to take for updating the properties.jar file: http://www-01.ibm.com/support/docview.wss?uid=swg1IV22171
+The connection information is also in D:\ibm\SMP\maximo\applications\maximo\properties\maximo.properties but this does not effect the runtime of the deployed app. 
+
+
